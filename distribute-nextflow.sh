@@ -4,37 +4,12 @@
 #
 # SUMMARY
 #
-#   This script performs a local setup of nextflow. It does so by compiling
-#   nextflow from source and explicitly builds the plugin modules which are 
-#   copied to the standard plugin cache of nextflow (~/.nextflow/plugins).
-#
-#   This allows running nextflow with patched plugins which otherwise would
-#   be downloaded from a plugin index (https://github.com/nextflow-io/plugins)
-#   and used over any plugin customizations.
-#
-#   Furthermore this setup script installs Java (see $JAVA_VER) if not present
-#
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-#
-# A WORD OF WARNING
-#
-#   Since ~/.nextflow and ~/.gradle are used to cache build artifacts or 
-#   downloaded sources/binaries/packages both directories will be purged 
-#   during script execution!
-#   Remove respective lines in the script if this is not desired.
-#   
-#   The script also kills all running ignite daemons on the local machine
-#   to ensure that only one daemon node is active
+#   TODO
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 # USAGE
-#
-# ./distribute-nextflow.sh <nextflow_source_dir> <ignite_discovery_dir> <mode>
-#   nextflow_source_dir   := root of nextflow repository (top level Makefile)
-#   ignite_discovery_dir  := common dir on shared nfs for all ignite daemons
-#   mode                  := use "daemon" to start an ignite daemon or omit
-#                            if setting up the master node
+#   TODO
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -135,3 +110,10 @@ do
 done
 
 echo "[+] [$EXEC_HOST] done distributing nextflow \\o/"
+
+
+
+  # echo "[+] [$EXEC_HOST] begin executing nextflow setup on host: $host"
+  # PARAMLIST=("$PARAM_NF_TARGET_DIR/nextflow" "$PARAM_IGNITE_DISCOVERY_DIR" "$PARAM_IGNITE_MODE")
+  # printf -v params '%q ' "${PARAMLIST[@]}"
+  # ssh  "$SSH_HOST" "bash -s -- $params" < "$PARAM_SETUP_SCRIPT" # $PARAM_NF_TARGET_DIR/nextflow $PARAM_IGNITE_DISCOVERY_DIR $PARAM_IGNITE_MODE
