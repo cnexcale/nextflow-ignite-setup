@@ -39,36 +39,40 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
-NF_DIR=$1
-NF_IGNITE_DISCOVER_DIR=$2
-DAEMON_MODE=$3
+PARAM_NEXTFLOW_DIR="$1"
+PARAM_IGNITE_DISCOVERY_DIR="$2"
+PARAM_IGNITE_MODE="$3"
 
 HOST="$(hostname)"
 JAVA_VER="openjdk-11-jre-headless"
 
+## Constants
 
-# Checking parameters
+DAEMON_MODE="daemon"
 
-if [ "$NF_DIR" == "" ]; then
+
+## Checking parameters
+
+if [ "$PARAM_NEXTFLOW_DIR" == "" ]; then
   echo "[-] nextflow source directory is missing!"
   echo '    usage: ./setup-nextflow.sh <nextflow_source_dir> <ignite_discovery_dir> <mode>'
   exit 1
 fi
 
-if [ "$DAEMON_MODE" == "daemon" ]; then
+if [ "$PARAM_IGNITE_MODE" == "$DAEMON_MODE" ]; then
 
-  if [ "$NF_IGNITE_DISCOVER_DIR" == "" ]; then
+  if [ "$PARAM_IGNITE_DISCOVERY_DIR" == "" ]; then
     echo "[-] daemon mode specified but discovery dir for ignite is missing!"
     echo '    usage: ./setup-nextflow.sh <nextflow_source_dir> <ignite_discovery_dir> <mode>'
     exit 1
   fi
 
   echo "[~] daemon flag received, will start nextflow ignite daemon after setup"
-  echo "[~] will use $NF_IGNITE_DISCOVER_DIR as discovery dir for ignite daemons"
+  echo "[~] will use discovery dir for ignite daemons: $PARAM_IGNITE_DISCOVERY_DIR"
 fi
 
 
-# Checking Java
+## Checking Java
 
 echo "[+] [$HOST] checking if java is installed"
 
@@ -80,20 +84,20 @@ fi
 echo "[+] [$HOST] starting nextflow setup"
 
 
-# Cleanup
+## Cleanup
 
 echo "[+] [$HOST] cleanup all nf binaries and gradle cache"
 rm -rf ~/.nextflow
 rm -rf ~/.gradle
 
-echo "[+] [$HOST] cd into nf dir: $NF_DIR"
-cd $NF_DIR
+echo "[+] [$HOST] cd into nf dir: $PARAM_NEXTFLOW_DIR"
+cd "$PARAM_NEXTFLOW_DIR"
 
 echo "[+] [$HOST] clean cache, build and temp files"
 make clean > /dev/null
 
 
-# Start building nextflow modules and plugins
+## Start building nextflow modules and plugins
 
 echo "[+] [$HOST] build project to get compiled plugins"
 make assemble > /dev/null
@@ -105,9 +109,9 @@ echo "[+] [$HOST] installing nextflow"
 make install > /dev/null
 
 
-# Conditionally starting nextflow ignite daemon
+## Conditionally start nextflow ignite daemon
 
-if [ "$DAEMON_MODE" == "daemon" ]; then
+if [ "$PARAM_IGNITE_MODE" == "$DAEMON_MODE" ]; then
   echo "[+] [$HOST] trying to find and kill running nf ignite deamons"
 
   # parse ps output to find possible running nextflow ignite instances
@@ -117,13 +121,13 @@ if [ "$DAEMON_MODE" == "daemon" ]; then
   if [ "$PIDS" == " " ] || [ "$PIDS" == "" ]; then
     echo "[+] [$HOST] didnt find any ignite deamons running"
   else
-    echo "[+] [$HOST] found deamons: $(echo $PIDS)"
+    echo "[+] [$HOST] found deamons: $PIDS"
     kill $PIDS
   fi
 
   # use `nohup` to prevent nextflow ignite deamons being killed on ssh session termination
-  echo "[+] [$HOST] join ignite cluster via shared NFS at $NF_IGNITE_DISCOVER_DIR"
-  nohup $NF_DIR/nextflow node -bg -cluster.join path:$NF_IGNITE_DISCOVER_DIR
+  echo "[+] [$HOST] join ignite cluster via shared NFS at $PARAM_IGNITE_DISCOVERY_DIR"
+  nohup "$PARAM_NEXTFLOW_DIR/nextflow" node -bg -cluster.join path:"$PARAM_IGNITE_DISCOVERY_DIR"
 fi
 
 echo "[+] [$HOST] done with nextflow setup"
