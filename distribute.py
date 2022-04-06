@@ -105,6 +105,13 @@ if args.command == command_dry_run:
 
 if args.command == command_dist:
     
+    confirmation = input("\nCommand for live execution was provided, proceed to actually setup nextflow? (y/Y)")
+    
+    if confirmation != "y" and confirmation != "Y":
+        print("Distibute canceled")
+        sys.exit(1)
+
+
     # use redirected stderr for simplicity
 
     process = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
