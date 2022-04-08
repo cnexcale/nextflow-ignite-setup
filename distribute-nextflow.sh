@@ -103,7 +103,7 @@ do
   echo "[+] [$EXEC_HOST] copy setup script to remote host: $host"
   scp "$PARAM_SETUP_SCRIPT" "$SSH_HOST":~/setup-nextflow.sh
 
-  cmd='chmod +x ~/setup-nextflow.sh; ~/setup-nextflow.sh '"$PARAM_NF_TARGET_DIR/nextflow $PARAM_IGNITE_DISCOVERY_DIR $PARAM_IGNITE_MODE"'; exit;'
+  cmd='chmod +x ~/setup-nextflow.sh; ~/setup-nextflow.sh '"$PARAM_NF_TARGET_DIR/nextflow $PARAM_IGNITE_MODE $PARAM_IGNITE_DISCOVERY_DIR"'; exit;'
 
   echo "[+] [$EXEC_HOST] start setup on: $host"
   ssh -t "$SSH_HOST" "$cmd"
