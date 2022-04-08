@@ -41,7 +41,7 @@
 
 PARAM_NEXTFLOW_DIR="$1"
 PARAM_IGNITE_MODE="$2"
-PARAM_IGNITE_DISCOVERY_DIR="$3"
+PARAM_IGNITE_DISCOVERY="$3"
 
 HOST="$(hostname)"
 JAVA_VER="openjdk-11-jre-headless"
@@ -61,14 +61,14 @@ fi
 
 if [ "$PARAM_IGNITE_MODE" == "$DAEMON_MODE" ]; then
 
-  if [ "$PARAM_IGNITE_DISCOVERY_DIR" == "" ]; then
+  if [ "$PARAM_IGNITE_DISCOVERY" == "" ]; then
     echo "[-] daemon mode specified but discovery dir for ignite is missing!"
     echo '    usage: ./setup-nextflow.sh <nextflow_source_dir> <ignite_discovery_dir> <mode>'
     exit 1
   fi
 
   echo "[~] daemon flag received, will start nextflow ignite daemon after setup"
-  echo "[~] will use discovery dir for ignite daemons: $PARAM_IGNITE_DISCOVERY_DIR"
+  echo "[~] will use discovery for ignite daemons: $PARAM_IGNITE_DISCOVERY"
 fi
 
 
@@ -82,6 +82,17 @@ if ! command -v java &> /dev/null; then
 fi
 
 echo "[+] [$HOST] starting nextflow setup"
+
+
+## Check discovery mode
+
+IP_REGEX="[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]{1,5})?"
+
+if [[ $PARAM_IGNITE_DISCOVERY =~ $IP_REGEX ]]; then
+  IGNITE_DISCOVERY_MODE="ip"
+else
+  IGNITE_DISCOVERY_MODE="nfs"
+fi
 
 
 ## Cleanup
@@ -125,9 +136,16 @@ if [ "$PARAM_IGNITE_MODE" == "$DAEMON_MODE" ]; then
     kill $PIDS
   fi
 
-  # use `nohup` to prevent nextflow ignite deamons being killed on ssh session termination
-  echo "[+] [$HOST] join ignite cluster via shared NFS at $PARAM_IGNITE_DISCOVERY_DIR"
-  nohup "$PARAM_NEXTFLOW_DIR/nextflow" node -bg -cluster.join path:"$PARAM_IGNITE_DISCOVERY_DIR"
+  if [ "$IGNITE_DISCOVERY_MODE" == "ip" ]; then
+    # use `nohup` to prevent nextflow ignite deamons being killed on ssh session termination
+    echo "[+] [$HOST] join ignite cluster via IP at $PARAM_IGNITE_DISCOVERY"
+    nohup "$PARAM_NEXTFLOW_DIR/nextflow" node -bg -cluster.join ip:"$PARAM_IGNITE_DISCOVERY"
+  else
+    # use `nohup` to prevent nextflow ignite deamons being killed on ssh session termination
+    echo "[+] [$HOST] join ignite cluster via shared NFS at $PARAM_IGNITE_DISCOVERY"
+    nohup "$PARAM_NEXTFLOW_DIR/nextflow" node -bg -cluster.join path:"$PARAM_IGNITE_DISCOVERY"
+  fi
+
 fi
 
 echo "[+] [$HOST] done with nextflow setup"
