@@ -64,8 +64,10 @@ parser.add_argument("--user", "-u",
                     default=default_user)
 
 parser.add_argument("--ignite-discovery", "-i",
-                    metavar="NFS_DIR",
-                    help=f"Specify directory on a shared NFS thats accessible on all nodes for node discovery of the ignite cluster. Default: {default_ignite_discovery_dir}",
+                    metavar="NFS_OR_IP",
+                    help=f"Specify directory on a shared NFS thats accessible on all nodes "
+                          + "OR a comma (,) separated list of IP4 addresses with or without ports  for node discovery of the ignite cluster. "
+                          + f"Default: {default_ignite_discovery_dir}",
                     type=str,
                     default=default_ignite_discovery_dir)
 
@@ -91,7 +93,7 @@ args = parser.parse_args()
 daemon_param = ignite_daemon_flag if args.daemon else "no-daemon"
 purge_param = ignite_purge_flag if args.purge else "no-purge"
 
-cmd = [distribute_script, args.nf_source, args.nf_target, args.setup_script, args.user, daemon_param, args.ignite_discovery, purge_param]
+cmd = [distribute_script, args.nf_source, args.nf_target, args.setup_script, args.user, purge_param, daemon_param, args.ignite_discovery ]
 
 
 # Check command mode
@@ -105,7 +107,7 @@ if args.command == command_dry_run:
 
 if args.command == command_dist:
     
-    confirmation = input("\nCommand for live execution was provided, proceed to actually setup nextflow? (y/Y)")
+    confirmation = input("\nCommand for live execution was provided, proceed to actually setup nextflow? (y/Y) ")
     
     if confirmation != "y" and confirmation != "Y":
         print("Distibute canceled")
@@ -122,6 +124,6 @@ if args.command == command_dist:
         if not out and process.poll() is not None:
             break
 
-        print(out.decode("utf8").strip())
+        print(out.decode("utf8").strip().strip("\t"))
     
 
