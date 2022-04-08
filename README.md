@@ -4,7 +4,11 @@ Provides scripts to setup (compile + install) nextflow from source using slurms 
 
 `setup-nextflow.sh` is used to prepare, compile and install nextflow on a host and conditionally start an ignite daemon on the host.
 
-`distribute-nextflow.sh` will handle remote host resolution, possible cleanup prior to setup and executing the 
+`distribute-nextflow.sh` will handle remote host resolution, possible cleanup prior to setup and executing the setup script.
+
+# Note
+
+The distribution and setup script execution require and assume `ssh` access to remote hosts.
 
 # Usage
 
