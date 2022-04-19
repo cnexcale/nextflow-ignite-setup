@@ -78,6 +78,7 @@ echo "[+] [$HOST] checking if java is installed"
 
 if ! command -v java &> /dev/null; then
   echo "[~] [$HOST] java not found, installing $JAVA_VER"
+  sudo apt update --yes
   sudo apt install --yes $JAVA_VER
 fi
 
