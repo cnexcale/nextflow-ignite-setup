@@ -82,6 +82,18 @@ if ! command -v java &> /dev/null; then
   sudo apt install --yes $JAVA_VER
 fi
 
+
+## Checking make
+
+printf "[+] [%s] checking if make is installed\n" "$HOST"
+
+if ! command -v make &> /dev/null; then
+  printf "[~] [%s] make not found, installing\n" "$HOST"
+  sudo apt update --yes
+  sudo apt install --yes make
+fi
+
+
 echo "[+] [$HOST] starting nextflow setup"
 
 
