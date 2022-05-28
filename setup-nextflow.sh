@@ -12,7 +12,9 @@
 #   be downloaded from a plugin index (https://github.com/nextflow-io/plugins)
 #   and used over any plugin customizations.
 #
-#   Furthermore this setup script installs Java (see $JAVA_VER) if not present
+#   Furthermore this setup script installs Java and make (if not present) 
+#   in order to build nextflow from source.
+#   Check/adjust $JAVA_VER for the Java version that is to be installed.  
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #

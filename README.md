@@ -10,6 +10,8 @@ Provides scripts to setup (compile + install) nextflow from source using slurms 
 
 The distribution and setup script execution require and assume `ssh` access to remote hosts.
 
+The `setup-nextflow.sh` script will install Java (version determined by variable in script) and make in order to build nextflow from source.
+
 # Usage
 
 For a more convenient usage `distribute.py` provides a simple CLI interface with argument parsing and help/description texts. Use `./distribute.py --help` for an overview.
