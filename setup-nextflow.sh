@@ -140,7 +140,7 @@ if [ "$PARAM_IGNITE_MODE" == "$DAEMON_MODE" ]; then
 
   # parse ps output to find possible running nextflow ignite instances
   # exclude grep'ing processes
-  PIDS=$(ps -aux | grep "/usr/bin/java.*ignite" | grep -v "grep" | tr -s " " | cut -d " " -f 2 | tr "\n" " ")
+  PIDS=$(ps -aux | grep "bin/java.*nextflow.cli.Launcher.*-cluster\.join" | grep -v "grep" | tr -s " " | cut -d " " -f 2 | tr "\n" " ")
 
   if [ "$PIDS" == " " ] || [ "$PIDS" == "" ]; then
     echo "[+] [$HOST] didnt find any ignite deamons running"
