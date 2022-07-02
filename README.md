@@ -6,6 +6,10 @@ Provides scripts to setup (compile + install) nextflow from source using slurms 
 
 `distribute-nextflow.sh` will handle remote host resolution, possible cleanup prior to setup and executing the setup script.
 
+# Full setup
+
+For full setup tutorial please see `full-setup/nf-ignite-setup.md` for required steps and preparation to setup an Ignite based nextflow pipeline run.
+
 # Note
 
 The distribution and setup script execution require and assume `ssh` access to remote hosts.
