@@ -7,7 +7,7 @@ NF sources auf Master Node kopieren
 NF verteilen
 - https://github.com/cnexcale/nextflow-ignite-setup
 - `./distribute.py --help` für eine Übersicht
-- `./distribute.py --daemon --purge -i <worker_node_ips__comma_separated>  dry-run ~/nf-current`
+- `./distribute.py --daemon --purge -i <worker_node_ips__comma_separated> live ~/nf-current`
 - Worker überprüfen: `ssh ubuntu@<worker_ip>` -> `pgrep -a java`
 
 NF auf Master Node installieren
@@ -30,9 +30,8 @@ ln -s /mnt/scratch /vol/scratch
 
 
 # Docker
-
 Für Meta-Omics-Toolkit muss Docker auf Nodes installiert sein
-- z.B. mit script `scripts/setup-docker.sh` (s.u.)
+- z.B. mit script `scripts/setup-docker.sh`
 
 
 # Object Storage
@@ -41,16 +40,17 @@ Bucket für WorkDir anlegen
 
 
 # Meta-Omics-Toolkit
-Toolkit auf Master Node: `git clone` oder `scp`
-- muss in einem Verzeichnis liegen, das genug Speicherplatz hat auf dem Master Node!
+Toolkit auf Master Node ziehen: `git clone` oder `scp`
+- muss in einem Verzeichnis/Mount liegen, das genug Speicherplatz hat, da von hier später der Workflow gestartet wird
 - z.B. scratch oder ephemeral
 
 Toolkit Binaries verteilen (`meta-omics-toolkit/bin` Ordner)
 - müssen auf jedem Node vorhanden sein
-- siehe `scripts/copy-meta-omics-binaries.sh` Script
-    - `copy-meta-omics-binaries.sh <path_to_meta_omics_bin_folder> <worker_node_ips__comma_separated>`
+- siehe `scripts/copy-meta-omics-binaries.sh`
+  - `copy-meta-omics-binaries.sh <path_to_meta_omics_bin_folder> <worker_node_ips__comma_separated>`
 
 Anpassungen der `nextflow.config`
+- siehe `configs/nextflow.config`
 - Object Storage konfigurieren: `aws {}` Sektion auf top level hinzufügen
 - Executor setzen: `profiles { slurm { process { executor = 'ignite' } } }`
 - Binaries Ordner des Toolkits muss in jeden Container gemounted werden und dieser muss zur `PATH` Variable vorhanden sein
@@ -68,6 +68,7 @@ Anpassungen der `nextflow.config`
     ```
 
 (optional) Parameterdatei kürzen (`example_params/fullPipeline.yml`)
+- siehe `configs/fullPipeline.yml`
 - unter `steps` alle Schritte nach `binning` rausnehmen (`binning` aber behalten)
 - `scratch: /vol/scratch` kontrolliert
 - input definition angepasst: SRA IDs aus S3 buckets
