@@ -1,6 +1,8 @@
 # Nextflow
 
 NF sources auf Master Node kopieren
+- `git clone https://github.com/cnexcale/nextflow.git`
+- Branch `nf-ignite_s3_workdir` nutzen: `git checkout nf-ignite_s3_workdir`
 
 NF verteilen
 - https://github.com/cnexcale/nextflow-ignite-setup
@@ -9,8 +11,8 @@ NF verteilen
 - Worker überprüfen: `ssh ubuntu@<worker_ip>` -> `pgrep -a java`
 
 NF auf Master Node installieren
-- hier enthalten: https://github.com/cnexcale/nextflow-ignite-setup 
-- `./setup-locally.sh ~/nf-current`
+- hier enthalten: https://github.com/cnexcale/nextflow-ignite-setup
+- `./setup-locally.sh <nf-directory>`
 
 Scratch Verzeichnisse anlegen
 - bibigrid-master hat im default kein Scratch in BI
