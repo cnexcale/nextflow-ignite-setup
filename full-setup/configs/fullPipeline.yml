@@ -1,0 +1,45 @@
+tempdir: "tmp"
+summary: false
+input:
+  SRA:
+    S3:
+      path: test_data/SRA/samples.tsv 
+      bucket: "s3://ftp.era.ebi.ac.uk" 
+      prefix: "/vol1/fastq/"
+      watch: false
+output: "output"
+logDir: log
+runid: 1
+databases: "/mnt/databases/"
+logLevel: 1
+scratch: "/vol/scratch"
+steps:
+  qc:
+    fastp:
+       # Example params: " --cut_front --cut_tail --detect_adapter_for_pe  "
+       additionalParams: "  "
+  assembly:
+    megahit:
+      additionalParams: " --min-contig-len 200 "
+      fastg: true
+  binning:
+    bowtie:
+      additionalParams: 
+        bowtie: " --quiet --very-sensitive "
+        # samtools flags are used to filter resulting bam file
+        samtoolsView: " -F 3584 " 
+    metabat:
+      additionalParams: " --seed 234234  "
+resources:
+  large:
+    cpus: 28
+    memory: 250
+  medium:
+    cpus: 14
+    memory: 128
+  small:
+    cpus: 7
+    memory: 16
+  tiny:
+    cpus: 1
+    memory: 2
