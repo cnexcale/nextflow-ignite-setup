@@ -44,10 +44,15 @@ Toolkit auf Master Node ziehen: `git clone` oder `scp`
 - muss in einem Verzeichnis/Mount liegen, das genug Speicherplatz hat, da von hier später der Workflow gestartet wird
 - z.B. scratch oder ephemeral
 
-Toolkit Binaries verteilen (`meta-omics-toolkit/bin` Ordner)
-- müssen auf jedem Node vorhanden sein
-- siehe `scripts/copy-meta-omics-binaries.sh`
-  - `copy-meta-omics-binaries.sh <path_to_meta_omics_bin_folder> <worker_node_ips__comma_separated>`
+Toolkit Binaries
+- (falls NFS vorhanden) Toolkit muss auf NFS liegen und der NF run muss von dort gestartet werden
+  - nur dadurch wird sichergestellt, dass Worker Nodes die Binaries im `bin/` Order finden
+
+- (falls kein NFS vorhanden) Toolkit Binaries auf Worker verteilen (`meta-omics-toolkit/bin` Ordner)
+  - müssen auf jedem Node vorhanden sein
+  - siehe `scripts/copy-meta-omics-binaries.sh`
+    - kopiert `<path_to_meta_omics_bin_folder>` in `/home/ubuntu/meta-tools` auf alle Worker
+    - `copy-meta-omics-binaries.sh <path_to_meta_omics_bin_folder> <worker_node_ips__comma_separated>`
 
 Anpassungen der `nextflow.config`
 - siehe `configs/nextflow.config`
@@ -84,7 +89,7 @@ Anpassungen der `nextflow.config`
 
 
 # Start des Toolkits
-- aus Verzeichnis des meta-omics-toolkits heraus ausführen (da dort teilweise relative Pfade verwendet werden)
+- aus Verzeichnis des meta-omics-toolkits heraus ausführen (da dort teilweise relative Pfade verwendet werden, z.B. ggf. für `tmp` oder `output`)
 ```
 <nextflow-folder>/nextflow run <meta-omics-toolkit_folder>/main.nf \
                                   -work-dir "s3://<work-dir-bucket>" \
