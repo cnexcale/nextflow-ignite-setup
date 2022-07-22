@@ -52,6 +52,9 @@ JAVA_VER="openjdk-11-jre-headless"
 
 DAEMON_MODE="daemon"
 
+## Cluster config
+
+CFG_METRIC_LOG_FREQUENCY="-cluster.metricsLogFrequency '1 h'"
 
 ## Checking parameters
 
@@ -154,11 +157,11 @@ if [ "$PARAM_IGNITE_MODE" == "$DAEMON_MODE" ]; then
   if [ "$IGNITE_DISCOVERY_MODE" == "ip" ]; then
     # use `nohup` to prevent nextflow ignite deamons being killed on ssh session termination
     echo "[+] [$HOST] join ignite cluster via IP at $PARAM_IGNITE_DISCOVERY"
-    nohup "$PARAM_NEXTFLOW_DIR/nextflow" node -bg -cluster.join ip:"$PARAM_IGNITE_DISCOVERY"
+    nohup "$PARAM_NEXTFLOW_DIR/nextflow" node -bg $CFG_METRIC_LOG_FREQUENCY -cluster.join ip:"$PARAM_IGNITE_DISCOVERY"
   else
     # use `nohup` to prevent nextflow ignite deamons being killed on ssh session termination
     echo "[+] [$HOST] join ignite cluster via shared NFS at $PARAM_IGNITE_DISCOVERY"
-    nohup "$PARAM_NEXTFLOW_DIR/nextflow" node -bg -cluster.join path:"$PARAM_IGNITE_DISCOVERY"
+    nohup "$PARAM_NEXTFLOW_DIR/nextflow" node -bg $CFG_METRIC_LOG_FREQUENCY -cluster.join path:"$PARAM_IGNITE_DISCOVERY"
   fi
 
 fi
