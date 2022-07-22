@@ -1,6 +1,6 @@
 #!/bin/bash
 PARAM_NF_SOURCE="$1"
-DEFAULT_SOURCE="~/nf-current"
+DEFAULT_SOURCE="$HOME/nf-current"
 
 SOURCE=""
 if [ "$PARAM_NF_SOURCE" == "" ]; then
