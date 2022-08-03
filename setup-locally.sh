@@ -1,13 +1,31 @@
 #!/bin/bash
-PARAM_NF_SOURCE="$1"
-DEFAULT_SOURCE="$HOME/nf-current/nextflow"
+PARAM_MODE="$1"
+PARAM_NF_BASE="$2"
+DEFAULT_BASE="$HOME/nf-current"
 
-SOURCE=""
-if [ "$PARAM_NF_SOURCE" == "" ]; then
-  echo "[~] nextflow source dir is missing, using default $DEFAULT_SOURCE"
-  SOURCE="$DEFAULT_SOURCE"
-else
-  SOURCE="$1"
+
+if [ "$PARAM_MODE" == "" ]; then
+  echo "[-] setup mode required: from-local, from-git"
+  exit 1
 fi
 
-./setup-nextflow.sh "$SOURCE"
+
+NF_TARGET=""
+if [ "$PARAM_NF_BASE" == "" ]; then
+  echo "[~] nextflow source dir is missing, using default $DEFAULT_SOURCE"
+  NF_TARGET="$DEFAULT_BASE"
+else
+  NF_TARGET="$2"
+fi
+
+
+SCRIPT=""
+if [ "$PARAM_MODE" == "from-local" ]; then
+  SCRIPT="./setup-nextflow.sh"
+  NF_TARGET="$BASE/nextflow"
+else
+  SCRIPT="./setup-nextflow.git.sh"
+fi
+
+
+bash "$SCRIPT" "$NF_TARGET"
