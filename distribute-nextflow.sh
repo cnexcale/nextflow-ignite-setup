@@ -16,7 +16,7 @@
 
 ## Script parameters
 
-PARAM_NF_SOURCE="$1"
+PARAM_NF_SOURCE="$1"            # copying nf to host will skipped if source == FROM_GIT
 PARAM_NF_TARGET_DIR="$2"
 PARAM_SETUP_SCRIPT="$3"
 PARAM_USER="$4"
@@ -111,17 +111,21 @@ do
 
   ## Conditionally purge and copy current nextflow source files
 
-  if ssh "$SSH_HOST" '[ -d '"$PARAM_NF_TARGET_DIR"' ]' && [ "$PARAM_PURGE_FLAG" != "$PURGE_FLAG" ]; then
-    echo "[+] [$EXEC_HOST] nextflow directory already exists on host and force override is not defined"
-  else
-    echo "[+] [$EXEC_HOST] nextflow not present or purge defined"
+  if [ "$PARAM_NF_SOURCE" != "FROM_GIT" ]; then
 
-    echo "[+] [$EXEC_HOST] deleting previous nextflow files at: $SSH_HOST:$PARAM_NF_TARGET_DIR"
-    ssh "$SSH_HOST" 'rm -rfv '"$PARAM_NF_TARGET_DIR" > /dev/null
+    if ssh "$SSH_HOST" '[ -d '"$PARAM_NF_TARGET_DIR"' ]' && [ "$PARAM_PURGE_FLAG" != "$PURGE_FLAG" ]; then
+      echo "[+] [$EXEC_HOST] nextflow directory already exists on host and force override is not defined"
+    else
+      echo "[+] [$EXEC_HOST] nextflow not present or purge defined"
 
-    echo "[+] [$EXEC_HOST] copying nextflow to: $SSH_HOST:$PARAM_NF_TARGET_DIR"
-    scp -r "$PARAM_NF_SOURCE" "$SSH_HOST":"$PARAM_NF_TARGET_DIR" > /dev/null
+      echo "[+] [$EXEC_HOST] deleting previous nextflow files at: $SSH_HOST:$PARAM_NF_TARGET_DIR"
+      ssh "$SSH_HOST" 'rm -rfv '"$PARAM_NF_TARGET_DIR" > /dev/null
+
+      echo "[+] [$EXEC_HOST] copying nextflow to: $SSH_HOST:$PARAM_NF_TARGET_DIR"
+      scp -r "$PARAM_NF_SOURCE" "$SSH_HOST":"$PARAM_NF_TARGET_DIR" > /dev/null
+    fi
   fi
+
 
   echo "[+] [$EXEC_HOST] copy setup script to remote host: $host"
   scp "$PARAM_SETUP_SCRIPT" "$SSH_HOST":~/setup-nextflow.sh
