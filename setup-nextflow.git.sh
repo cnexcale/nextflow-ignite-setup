@@ -64,6 +64,18 @@ if ! command -v make &> /dev/null; then
 fi
 
 
+#
+## Checking unzip
+#
+
+printf "[+] [%s] checking if unzip is installed\n" "$HOST"
+
+if ! command -v unzip &> /dev/null; then
+  printf "[~] [%s] make not found, installing\n" "$HOST"
+  sudo apt update --yes
+  sudo apt install --yes unzip
+fi
+
 echo "[+] [$HOST] starting nextflow setup"
 
 
@@ -127,7 +139,14 @@ echo "[+] [$HOST] build plugin"
 NF_PLUGINS_PATH="$HOME/.nextflow/plugins"
 echo "[+] [$HOST] copy build output to nf plugins dir $NF_PLUGINS_PATH"
 mkdir -p "$NF_PLUGINS_PATH"
-cp -r build/plugins "$NF_PLUGINS_PATH"
+
+# unpack zipped plugin into folder named after the plugin minus the zip extension
+for pluginZip in build/plugins/*.zip; do
+ dir=${pluginZip%%.zip}
+ mkdir -p "$NF_PLUGINS_PATH/$dir"
+ unzip -d "$dir" "$pluginZip"
+done
+# cp -r build/plugins "$NF_PLUGINS_PATH"
 
 
 #

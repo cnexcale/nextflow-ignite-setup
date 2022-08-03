@@ -14,7 +14,7 @@ For full setup tutorial please see `full-setup/nf-ignite-setup.md` for required 
 
 The distribution and setup script execution require and assume `ssh` access to remote hosts.
 
-The `setup-nextflow.sh` or `setup-nextflow.git.sh` script will install `Java` (version determined by variable in script) and `make` in order to build nextflow from source.
+The `setup-nextflow.sh` or `setup-nextflow.git.sh` script will require/install `Java` (version determined by variable in script), `unzip` and `make` in order to build nextflow from source.
 
 # Usage
 
