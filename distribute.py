@@ -119,7 +119,7 @@ def validate_args(parsed_args):
     #                 ignite discovery (dir exists or valid ip format)
     
     
-    return (get_dist_source(parse_args) is not None
+    return (get_dist_source(parsed_args) is not None
             and get_setup_script(parsed_args) is not None)
 
 def build_command(parsed_args):
