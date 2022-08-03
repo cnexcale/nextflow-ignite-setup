@@ -2,7 +2,7 @@
 
 Provides scripts to setup (compile + install) nextflow from source using slurms `sinfo` command for remote host discovery.
 
-`setup-nextflow.sh` is used to prepare, compile and install nextflow on a host and conditionally start an ignite daemon on the host.
+`setup-nextflow.sh`/`setup-nextflow.git.sh` are used to prepare, compile and install nextflow on a host and conditionally start an ignite daemon on the host.
 
 `distribute-nextflow.sh` will handle remote host resolution, possible cleanup prior to setup and executing the setup script.
 
@@ -14,7 +14,7 @@ For full setup tutorial please see `full-setup/nf-ignite-setup.md` for required 
 
 The distribution and setup script execution require and assume `ssh` access to remote hosts.
 
-The `setup-nextflow.sh` script will install Java (version determined by variable in script) and make in order to build nextflow from source.
+The `setup-nextflow.sh` or `setup-nextflow.git.sh` script will install `Java` (version determined by variable in script) and `make` in order to build nextflow from source.
 
 # Usage
 
@@ -24,7 +24,7 @@ Except for the base `command` and `nf-source` all arguments come with a default 
 Example:
 ```
     ./distribute.py dry-run \ 
-        ~/nf-fork \
+        --nf-source ~/nf-fork \
         --user not-ubuntu \
         --nf-target /home/not-ubuntu/remote-nf-dir \
         --ignite-discovery /shared/nfs/for/workers/discovery \
@@ -32,4 +32,4 @@ Example:
         --purge
 ```
 
-This example uses the `dry-run` command and prints the parametrized bash script call that could be used directly for execution. When using `live` command the built script call will be executed. 
+This example uses the `dry-run` command and prints the parametrized bash script call that could be used directly for execution. When using `from-local` or `from-git` command the built command string will be executed. 
