@@ -144,7 +144,8 @@ mkdir -p "$NF_PLUGINS_PATH"
 for pluginZip in build/plugins/*.zip; do
  dir=${pluginZip%%.zip}
  mkdir -p "$NF_PLUGINS_PATH/$dir"
- unzip -d "$dir" "$pluginZip"
+ # add -o to skip replace confirmation
+ unzip -o -d "$dir" "$pluginZip"
 done
 # cp -r build/plugins "$NF_PLUGINS_PATH"
 
