@@ -153,7 +153,7 @@ if args.command == command_dry_run:
 
 
     
-print("Command for live execution was provided. The following command would be executed:")
+print("Command for live execution was provided. The following command would be executed:\n")
 print ("  ", " ".join(cmd), "\n")
 confirmation = input("Continue? (y/Y)")
 
