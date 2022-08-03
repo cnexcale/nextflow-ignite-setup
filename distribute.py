@@ -90,7 +90,7 @@ parser.add_argument("--purge", "-p",
 
 
 def get_setup_script(parsed_args):
-    if parsed_args.setup_script:
+    if parsed_args.setup_script != default_setup_script:
         return parsed_args.setup_script
 
     elif parsed_args.command == command_dist_from_local:
@@ -153,7 +153,9 @@ if args.command == command_dry_run:
 
 
     
-confirmation = input("\nCommand for live execution was provided, proceed to actually setup nextflow? (y/Y) ")
+print("Command for live execution was provided. The following command would be executed:")
+print ("  ", " ".join(cmd), "\n")
+confirmation = input("Continue? (y/Y)")
 
 if confirmation != "y" and confirmation != "Y":
     print("Distibute canceled")
