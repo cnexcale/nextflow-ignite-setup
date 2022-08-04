@@ -143,9 +143,10 @@ mkdir -p "$NF_PLUGINS_PATH"
 # unpack zipped plugin into folder named after the plugin minus the zip extension
 cd build/plugins
 
+# glob build output dir to use actual zip file names for target nextflow plugin dri
 for pluginZip in *.zip; do
  dir="$NF_PLUGINS_PATH/${pluginZip%%.zip}"
- mkdir -p "$NF_PLUGINS_PATH/$dir"
+ mkdir -p "$dir"
  # add -o to skip replace confirmation
  unzip -o -d "$dir" "$pluginZip"
 done
