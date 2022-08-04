@@ -21,7 +21,7 @@ DAEMON_MODE="daemon"
 
 if [ "$PARAM_NF_BASE_DIR" == "" ]; then
   echo "[-] setup base directory is missing!"
-  echo '    usage: ./setup-nextflow.sh <setup_base_dir> <ignite_discovery_dir> <mode>'
+  echo '    usage: ./setup-nextflow.sh <setup_base_dir> <mode> <ignite_discovery>'
   exit 1
 fi
 
@@ -29,7 +29,7 @@ if [ "$PARAM_IGNITE_MODE" == "$DAEMON_MODE" ]; then
 
   if [ "$PARAM_IGNITE_DISCOVERY" == "" ]; then
     echo "[-] daemon mode specified but discovery dir for ignite is missing!"
-    echo '    usage: ./setup-nextflow.sh <nextflow_source_dir> <ignite_discovery_dir> <mode>'
+    echo '    usage: ./setup-nextflow.sh <setup_base_dir> <mode> <ignite_discovery>'
     exit 1
   fi
 
@@ -141,13 +141,14 @@ echo "[+] [$HOST] copy build output to nf plugins dir $NF_PLUGINS_PATH"
 mkdir -p "$NF_PLUGINS_PATH"
 
 # unpack zipped plugin into folder named after the plugin minus the zip extension
-for pluginZip in build/plugins/*.zip; do
- dir=${pluginZip%%.zip}
+cd build/plugins
+
+for pluginZip in *.zip; do
+ dir="$NF_PLUGINS_PATH/${pluginZip%%.zip}"
  mkdir -p "$NF_PLUGINS_PATH/$dir"
  # add -o to skip replace confirmation
  unzip -o -d "$dir" "$pluginZip"
 done
-# cp -r build/plugins "$NF_PLUGINS_PATH"
 
 
 #
