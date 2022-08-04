@@ -57,7 +57,7 @@ DAEMON_MODE="daemon"
 
 if [ "$PARAM_NEXTFLOW_DIR" == "" ]; then
   echo "[-] nextflow source directory is missing!"
-  echo '    usage: ./setup-nextflow.sh <nextflow_source_dir> <ignite_discovery_dir> <mode>'
+  echo '    usage: ./setup-nextflow.sh <nextflow_source_dir> <mode> <ignite_discovery>'
   exit 1
 fi
 
