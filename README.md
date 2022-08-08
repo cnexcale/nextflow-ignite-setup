@@ -45,5 +45,5 @@ Example `from-local`:
 
 The distribution and setup script execution require and assume `ssh` access to remote hosts.
 
-The `setup-nextflow.sh` or `setup-nextflow.git.sh` script will require/install `Java` (version determined by variable in script), `unzip` and `make` in order to build nextflow from source.
+The `setup-nextflow.sh` or `setup-nextflow.git.sh` script will require/install `Java` (version determined by variable in script), `unzip` and `make` in order to build nextflow from source. When using the `from-git` command mode `git` has to be present on the node as well and will not be installed as of now.  
 
