@@ -103,8 +103,8 @@ rm -rf ~/.gradle
 #
 ## Nextfow setup
 #
-
 NF_EXEC_DIR="$PARAM_NF_BASE_DIR/nextflow"
+NF_GIT_BRANCH="nf-ignite/stable/latest"
 
 echo "[+] [$HOST] clone forked nextflow"
 rm -rf "$NF_EXEC_DIR"
@@ -112,7 +112,7 @@ mkdir -p "$NF_EXEC_DIR"
 cd "$PARAM_NF_BASE_DIR"
 git clone https://github.com/cnexcale/nextflow.git > /dev/null
 cd "$NF_EXEC_DIR"
-git checkout nf-ignite/stable/latest
+git checkout "$NF_GIT_BRANCH"
 
 echo "[+] [$HOST] build nextflow"
 make install > /dev/null
@@ -123,6 +123,7 @@ make install > /dev/null
 #
 
 NF_IGNITE_DIR="$PARAM_NF_BASE_DIR/nf-ignite"
+NF_IGNITE_GIT_BRANCH="develop-mot"
 
 echo "[+] [$HOST] clone nf-ignite plugin fork"
 cd "$PARAM_NF_BASE_DIR"
@@ -131,7 +132,7 @@ mkdir -p "$NF_IGNITE_DIR"
 
 git clone https://github.com/cnexcale/nf-ignite.git > /dev/null
 cd "$NF_IGNITE_DIR"
-git checkout develop-mot
+git checkout "$NF_IGNITE_GIT_BRANCH"
 
 echo "[+] [$HOST] build plugin"
 ./gradlew assemble > /dev/null
