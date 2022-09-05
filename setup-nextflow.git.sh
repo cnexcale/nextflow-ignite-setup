@@ -104,13 +104,14 @@ rm -rf ~/.gradle
 ## Nextfow setup
 #
 NF_EXEC_DIR="$PARAM_NF_BASE_DIR/nextflow"
+NF_GIT_REPO="https://github.com/cnexcale/nextflow.git"
 NF_GIT_BRANCH="nf-ignite/stable/latest"
 
 echo "[+] [$HOST] clone forked nextflow"
 rm -rf "$NF_EXEC_DIR"
 mkdir -p "$NF_EXEC_DIR"
 cd "$PARAM_NF_BASE_DIR"
-git clone https://github.com/cnexcale/nextflow.git > /dev/null
+git clone "$NF_GIT_REPO" > /dev/null
 cd "$NF_EXEC_DIR"
 git checkout "$NF_GIT_BRANCH"
 
