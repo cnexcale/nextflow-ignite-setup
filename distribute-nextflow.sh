@@ -16,7 +16,7 @@
 
 ## Script parameters
 
-PARAM_NF_SOURCE="$1"
+PARAM_NF_SOURCE="$1"            # copying nf to host will skipped if source == FROM_GIT
 PARAM_NF_TARGET_DIR="$2"
 PARAM_SETUP_SCRIPT="$3"
 PARAM_USER="$4"
@@ -108,25 +108,29 @@ do
   
   echo "[+] [$EXEC_HOST] distributing nextflow to host: $host"
 
-
-  ## Conditionally purge and copy current nextflow source files
-
-  if ssh "$SSH_HOST" '[ -d '"$PARAM_NF_TARGET_DIR"' ]' && [ "$PARAM_PURGE_FLAG" != "$PURGE_FLAG" ]; then
-    echo "[+] [$EXEC_HOST] nextflow directory already exists on host and force override is not defined"
-  else
-    echo "[+] [$EXEC_HOST] nextflow not present or purge defined"
-
-    echo "[+] [$EXEC_HOST] deleting previous nextflow files at: $SSH_HOST:$PARAM_NF_TARGET_DIR"
+  ## Conditionally purge previous installation
+  if [ "$PARAM_PURGE_FLAG" == "$PURGE_FLAG" ]; then
+    echo "[+] [$EXEC_HOST] purge flag received, will delete everything at: $SSH_HOST:$PARAM_NF_TARGET_DIR"
     ssh "$SSH_HOST" 'rm -rfv '"$PARAM_NF_TARGET_DIR" > /dev/null
+  fi
 
+
+  FINAL_NF_TARGET_DIR=""
+
+  ## Determine final target dir and copy source files for non-git based installations
+  if [ "$PARAM_NF_SOURCE" != "FROM_GIT" ]; then
     echo "[+] [$EXEC_HOST] copying nextflow to: $SSH_HOST:$PARAM_NF_TARGET_DIR"
     scp -r "$PARAM_NF_SOURCE" "$SSH_HOST":"$PARAM_NF_TARGET_DIR" > /dev/null
+    FINAL_NF_TARGET_DIR="$PARAM_NF_TARGET_DIR/nextflow"
+  else
+    FINAL_NF_TARGET_DIR="$PARAM_NF_TARGET_DIR"
   fi
+
 
   echo "[+] [$EXEC_HOST] copy setup script to remote host: $host"
   scp "$PARAM_SETUP_SCRIPT" "$SSH_HOST":~/setup-nextflow.sh
-  
-  cmd='chmod +x ~/setup-nextflow.sh; ~/setup-nextflow.sh '"$PARAM_NF_TARGET_DIR/nextflow $PARAM_IGNITE_MODE $PARAM_IGNITE_DISCOVERY"'; exit;'
+
+  cmd='chmod +x ~/setup-nextflow.sh; ~/setup-nextflow.sh '"$FINAL_NF_TARGET_DIR $PARAM_IGNITE_MODE $PARAM_IGNITE_DISCOVERY"'; exit;'
 
   echo "[+] [$EXEC_HOST] start setup on: $host"
   ssh -t "$SSH_HOST" "$cmd"

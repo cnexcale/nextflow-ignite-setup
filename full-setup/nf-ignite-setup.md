@@ -1,23 +1,46 @@
 # Nextflow
 
-NF sources auf Master Node kopieren
+## NF sources auf Master Node kopieren
 - `git clone https://github.com/cnexcale/nextflow.git`
 - Branch `nf-ignite_s3_workdir` nutzen: `git checkout nf-ignite_s3_workdir`
 
-NF verteilen
+
+## NF auf die Hosts verteilen
 - https://github.com/cnexcale/nextflow-ignite-setup
 - `./distribute.py --help` für eine Übersicht
-- `./distribute.py --daemon --purge -i <worker_node_ips__comma_separated> live ~/nf-current`
-- Worker überprüfen: `ssh ubuntu@<worker_ip>` -> `pgrep -a java`
+Hier gibt es grundlegend zwei Optionen: eine lokale Version auf den Host kopieren und die aktuellen Branches der Nextflow und Ignite Forks ziehen.
+Die Variante über git ist aktuell die empfohlene.
 
-NF auf Master Node installieren
-- hier enthalten: https://github.com/cnexcale/nextflow-ignite-setup
-- siehe  [setup-locally.sh \<nf-directory\>](../setup-locally.sh)
+Für git:
+- `./distribute.py from-git --daemon --purge -i <worker_node_ips__comma_separated>`
 
-Scratch Verzeichnisse anlegen
-- bibigrid-master hat im default kein Scratch in BI
-- Worker ggf. auch nicht
-- Verzeichnisse anlegen und soft linken (wenn z.B. auf `/mnt` etwas platz ist) 
+Für lokale source files:
+- `./distribute.py from-local <nf_source_files> --daemon --purge -i <worker_node_ips__comma_separated>`
+
+Danach Worker überprüfen: `ssh ubuntu@<worker_ip>` -> `pgrep -a java`
+- wenn _genau ein_ Process `/usr/bin/java` mit laaaanger Parameter Liste und der `nextflow.cli.Launcher` main class am Ende läuft, hat das Setup auf dem Node sehr wahrscheinlich geklappt
+
+
+## NF auf Master Node installieren
+Setup Script für die lokale Installation auf dem Ignite Master befindet sich auch in diesem Repo, siehe [setup-locally.sh](../setup-locally.sh)
+
+Auch hier gibt es die Unterscheidung zwischen lokaler Installation oder der git-basierten.
+
+Für git:
+- `setup-locally.sh from-git <target_dir>`
+- führt [setup-nextflow.git.sh](../setup-nextflow.git.sh) aus, basierend auf `<target_dir>`
+- `<target_dir>` ist optional, default: `$HOME/nf-current`
+
+Für lokale source files:
+- `setup-locally.sh from-local <nf_source_files>`
+- führt [setup-nextflow.sh](../setup-nextflow.sh) aus und nutzt `<nf_source_files>` als Basis
+- `<target_dir>` ist optional, default: `$HOME/nf-current`
+
+
+## Scratch Verzeichnisse anlegen
+Bibigrid Master Nodes haben im default kein Scratch am Standort Bielefeld
+- Worker ggf. auch nicht, individuell zu prüfen; ggf. unter `/mnt/scratch`
+Daher: Verzeichnisse anlegen und soft linken auf Mounts/Verzeichnisse mit mehr Platz (z.B. ephemeral mounts unter `/mnt/scratch`) 
 
 ```
 sudo mkdir /vol
@@ -34,28 +57,37 @@ Für Meta-Omics-Toolkit muss Docker auf Nodes installiert sein
 - z.B. mit script [setup-docker.sh](scripts/setup-docker.sh)
 
 
+
 # Object Storage
 Bucket für WorkDir anlegen
 - z.B. `mc mb <project>/nf-work-25`
 
 
+
 # Meta-Omics-Toolkit
-Toolkit auf Master Node ziehen: `git clone` oder `scp`
-- muss in einem Verzeichnis/Mount liegen, das genug Speicherplatz hat, da von hier später der Workflow gestartet wird
+
+## Toolkit auf Master Node ziehen: `git clone` oder `scp`
+Muss in einem Verzeichnis/Mount liegen, das genug Speicherplatz hat, da von hier später der Workflow gestartet wird
 - z.B. scratch oder ephemeral
 
-Toolkit Binaries
-- (falls NFS vorhanden) Toolkit muss auf NFS liegen und der NF run muss von dort gestartet werden
-  - nur dadurch wird sichergestellt, dass Worker Nodes die Binaries im `bin/` Order finden
 
-- (falls kein NFS vorhanden) Toolkit Binaries auf Worker verteilen (`meta-omics-toolkit/bin` Ordner)
-  - müssen auf jedem Node vorhanden sein
-  - siehe [copy-meta-omics-binaries.sh](scripts/copy-meta-omics-binaries.sh)
-    - kopiert `<path_to_meta_omics_bin_folder>` in `/home/ubuntu/meta-tools` auf alle Worker
-    - `copy-meta-omics-binaries.sh <path_to_meta_omics_bin_folder> <worker_node_ips__comma_separated>`
+## Toolkit Binaries verteilen
+Falls ein NFS vorhanden:
+- Toolkit muss auf NFS liegen und der NF run muss von dort gestartet werden
+- nur dadurch wird sichergestellt, dass Worker Nodes die Binaries im `bin/` Order finden
 
-Anpassungen der `nextflow.config`
-- siehe [nextflow.config](configs/nextflow.config) für Beispiele
+Falls kein NFS vorhanden:
+- Toolkit Binaries (`meta-omics-toolkit/bin`) auf Worker verteilen 
+- müssen auf jedem Node vorhanden sein
+- Helper Script siehe [copy-meta-omics-binaries.sh](scripts/copy-meta-omics-binaries.sh)
+  - kopiert `<path_to_meta_omics_bin_folder>` in `/home/ubuntu/meta-tools` auf alle Worker
+  - Beispiel: `copy-meta-omics-binaries.sh <path_to_meta_omics_bin_folder> <worker_node_ips__comma_separated>`
+
+
+## Anpassungen der `nextflow.config`
+Für ein Beispiel siehe [nextflow.config](configs/nextflow.config)
+
+TODOs:
 - Object Storage konfigurieren: `aws {}` Sektion auf top level hinzufügen
 - Executor setzen: `profiles { slurm { process { executor = 'ignite' } } }`
 - Binaries Ordner des Toolkits muss in jeden Container gemounted werden und dieser muss zur `PATH` Variable vorhanden sein
@@ -72,7 +104,7 @@ Anpassungen der `nextflow.config`
     }
     ```
 
-(optional) Parameterdatei kürzen (`example_params/fullPipeline.yml`)
+## (optional) Parameterdatei kürzen (`example_params/fullPipeline.yml`)
 - siehe [fullPipeline.yml](configs/fullPipeline.yml)
 - unter `steps` alle Schritte nach `binning` rausnehmen (`binning` aber behalten)
 - `scratch: /vol/scratch` kontrolliert
@@ -89,7 +121,13 @@ Anpassungen der `nextflow.config`
 
 
 # Start des Toolkits
-- aus Verzeichnis des meta-omics-toolkits heraus ausführen (da dort teilweise relative Pfade verwendet werden, z.B. ggf. für `tmp` oder `output`)
+Wie Nextflow mit einem Ignite Master als Executor gestartet wird, hängt etwas von der Pipeline und den Anforderungen ab.
+Unbedingt notwendig ist der `-cluster.join ip:<list_of_ignite_workers__comma_separated>` Parameter, da sich nur damit der Ignite Master in den Cluster einklinken kann.
+Auch der `-profile` Parameter muss so konfiguriert sein, dass in dem Profil der Executor auf Ignite gesetzt ist (`process { executor = 'ignite' }`). Die Ausführung mit den gepatchten Nextflow/Ignit Versionen erlaubt zudem ein working directory im ObjectStorage (`-work-dir "s3://<bucket>"`)
+
+Ggf. kann es notwendig sein, Nextflow aus dem Verzeichnis des meta-omics-toolkits heraus ausführen (da dort teilweise relative Pfade verwendet werden, z.B. ggf. für `tmp` oder `output`), v.a. muss dann darauf geachtet werden, dass dort genug Speicher vorhanden ist für evtl finale Ergebnisse des Workflows.
+
+Beispiel:
 ```
 <nextflow-folder>/nextflow run <meta-omics-toolkit_folder>/main.nf \
                                   -work-dir "s3://<work-dir-bucket>" \
@@ -101,7 +139,7 @@ Anpassungen der `nextflow.config`
 ```
 
 # Konfigurationen
-Mit den Anpassungen aus dem Branch `https://github.com/cnexcale/nextflow/tree/nf-ignite_s3_workdir` gibt es verschiedene neue Parameter für das Verhalten des Ignite Plugins. Alle Parameter müssen auf der Toplevel Ebene der `nextflow.config` unter der Sektion `cluster {}` festgelegt werden. Beispiele siehe [nextflow.config](configs/nextflow.config)
+Mit den Anpassungen aus dem Branch `https://github.com/cnexcale/nextflow/tree/nf-ignite_s3_workdir` oder der Installation über `distribute.py from-git [...]` gibt es verschiedene neue Parameter für das Verhalten des Ignite Plugins. Alle Parameter müssen auf der Toplevel Ebene der `nextflow.config` unter der Sektion `cluster {}` festgelegt werden. Beispiele siehe [nextflow.config](configs/nextflow.config)
 
 **useMasterAsCompute**
 - Werte: `true` | `false`
