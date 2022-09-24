@@ -21,10 +21,10 @@ fi
 
 SCRIPT=""
 if [ "$PARAM_MODE" == "from-local" ]; then
-  SCRIPT="./setup-nextflow.sh"
+  SCRIPT="./helper/setup-nextflow.sh"
   NF_TARGET="$BASE/nextflow"
 else
-  SCRIPT="./setup-nextflow.git.sh"
+  SCRIPT="./helper/setup-nextflow.git.sh"
 fi
 
 
