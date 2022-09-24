@@ -41,10 +41,11 @@ default_purge_flag = False
 
 parser = argparse.ArgumentParser(description="Helper script to setup nextflow from source on a range of remote hosts.\n")
 
-command_parser = parser.add_subparsers()
 
 # TODO 
 #   - refactor into sub-command parsing
+
+# command_parser = parser.add_subparsers()
 # Docker command parser
 # cmd_docker_parser = command_parser.add_parser(command_docker, help="Install Docker onf given list of hosts")
 # cmd_docker_parser.add_argument("--hosts",
@@ -56,9 +57,9 @@ command_parser = parser.add_subparsers()
 
 parser.add_argument("command",
                     help="Mode of action for this script. "
-                          + f"{command_dist_from_local} := will setup nextflow on hosts based on local nextflow source files"
-                          + f"{command_dist_from_git} := will setup nextflow on hosts based on current version from forked git repo"
-                          + f"{command_dry_run} := will only print generated command for the distribute script"
+                          + f"{command_dist_from_local} := will setup nextflow on hosts based on local nextflow source files -- "
+                          + f"{command_dist_from_git} := will setup nextflow on hosts based on current version from forked git repo -- "
+                          + f"{command_dry_run} := will only print generated command for the distribute script -- "
                           + f"{command_docker} := will install Docker onf given list of hosts",
                     type=str,
                     choices=[command_dist_from_local, command_dist_from_git, command_dry_run, command_docker])
