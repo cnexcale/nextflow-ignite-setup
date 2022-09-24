@@ -7,24 +7,29 @@ import os
 
 
 # Constants for the script
-
 ignite_purge_flag = "purge"
 ignite_daemon_flag = "daemon"
 
-distribute_script = "./distribute-nextflow.sh"
 
+# Commands
 command_dry_run = "dry-run"
 command_dist_from_local = "from-local"
 command_dist_from_git = "from-git"
+command_docker = "docker"
 
-setup_script_git = "./setup-nextflow.git.sh"
-setup_script_local = "./setup-nextflow.sh"
+
+# Script files
+script_distribute = "./distribute-nextflow.sh"
+script_base_run = "./run-remote.sh"
+script_git_setup = "./helper/setup-nextflow.git.sh"
+script_local_setup = "./helper/setup-nextflow.sh"
+script_docker_setup = "./helper/setup-docker.sh"
+
 
 # Argument defaults
-
 default_command = command_dry_run
 default_nf_target_dir = "/home/ubuntu/nf-ignite"
-default_setup_script = setup_script_local
+default_setup_script = script_local_setup
 default_user = "ubuntu"
 default_daemon_flag = False
 default_ignite_discovery_dir = "/vol/spool/nf-ignite-cluster"
@@ -36,13 +41,27 @@ default_purge_flag = False
 
 parser = argparse.ArgumentParser(description="Helper script to setup nextflow from source on a range of remote hosts.\n")
 
+command_parser = parser.add_subparsers()
+
+# TODO 
+#   - refactor into sub-command parsing
+# Docker command parser
+# cmd_docker_parser = command_parser.add_parser(command_docker, help="Install Docker onf given list of hosts")
+# cmd_docker_parser.add_argument("--hosts",
+#                                 help=f"Comma separated list of target IPs",
+#                                 required=True,
+#                                 type=str)
+
+
+
 parser.add_argument("command",
                     help="Mode of action for this script. "
                           + f"{command_dist_from_local} := will setup nextflow on hosts based on local nextflow source files"
                           + f"{command_dist_from_git} := will setup nextflow on hosts based on current version from forked git repo"
-                          + f"{command_dry_run} := will only print generated command for the distribute script",
+                          + f"{command_dry_run} := will only print generated command for the distribute script"
+                          + f"{command_docker} := will install Docker onf given list of hosts",
                     type=str,
-                    choices=[command_dist_from_local, command_dist_from_git, command_dry_run])
+                    choices=[command_dist_from_local, command_dist_from_git, command_dry_run, command_docker])
 
 parser.add_argument("--nf-source", "-s",
                     metavar="DIR",
@@ -88,17 +107,24 @@ parser.add_argument("--purge", "-p",
                     action="store_true",
                     default=default_purge_flag)
 
+parser.add_argument("--hosts",
+                    metavar="IP[,IP]*",
+                    help="Comma separated list of IP4 addresses ",
+                    type=str)
 
 def get_setup_script(parsed_args):
     if parsed_args.setup_script != default_setup_script:
         return parsed_args.setup_script
 
     elif parsed_args.command == command_dist_from_local:
-        return setup_script_local
+        return script_local_setup
 
     elif parsed_args.command == command_dist_from_git:
-        return setup_script_git
-    
+        return script_git_setup
+
+    elif parsed_args.command == command_docker:
+        return script_docker_setup
+
     else:
         return None
 
@@ -118,21 +144,30 @@ def validate_args(parsed_args):
     #                 nf-target (absolute path)
     #                 ignite discovery (dir exists or valid ip format)
     
+    if parsed_args.command == command_docker:
+
+        if parsed_args.hosts is None or parsed_args.hosts == "":
+            print("Validation failed: parameter '--hosts' cannot be empty")
+            return False
+        else:
+            return True
     
     return (get_dist_source(parsed_args) is not None
             and get_setup_script(parsed_args) is not None)
 
 def build_command(parsed_args):
-    daemon_param = ignite_daemon_flag if parsed_args.daemon else "no-daemon"
-    purge_param = ignite_purge_flag if parsed_args.purge else "no-purge"
-    setup_script_param = get_setup_script(parsed_args)
-    source_param = get_dist_source(parsed_args)
+    if parsed_args.command == command_docker:
+        return [script_base_run, parsed_args.hosts, get_setup_script(parsed_args)]
+    else:
+        daemon_param = ignite_daemon_flag if parsed_args.daemon else "no-daemon"
+        purge_param = ignite_purge_flag if parsed_args.purge else "no-purge"
+        setup_script_param = get_setup_script(parsed_args)
+        source_param = get_dist_source(parsed_args)
 
-    return [distribute_script, source_param, parsed_args.nf_target, setup_script_param, parsed_args.user, purge_param, daemon_param, parsed_args.ignite_discovery ]  
+        return [script_distribute, source_param, parsed_args.nf_target, setup_script_param, parsed_args.user, purge_param, daemon_param, parsed_args.ignite_discovery ]  
 
 
 # Parse and validate commands
-
 args = parser.parse_args()
 
 if not validate_args(args):
@@ -140,14 +175,13 @@ if not validate_args(args):
 
 
 # Generate command from arguments
-
 cmd = build_command(args)
 
 
 # Check for dry-run
 
 if args.command == command_dry_run:
-    print(f"\nDry run specified, built the following command. You can directly use this command with {distribute_script}")
+    print(f"\nDry run specified, built the following command. You can directly use this command with {script_distribute}")
     print("\n  ", " ".join(cmd), "\n")
     sys.exit(0)
 
