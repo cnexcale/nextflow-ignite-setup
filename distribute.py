@@ -16,6 +16,7 @@ command_dry_run = "dry-run"
 command_dist_from_local = "from-local"
 command_dist_from_git = "from-git"
 command_docker = "docker"
+command_scratch_dir = "scratch-dir"
 
 
 # Script files
@@ -24,6 +25,7 @@ script_base_run = "./run-remote.sh"
 script_git_setup = "./helper/setup-nextflow.git.sh"
 script_local_setup = "./helper/setup-nextflow.sh"
 script_docker_setup = "./helper/setup-docker.sh"
+script_scratch_dir_setup = "./helper/setup-scratch-dir.sh"
 
 
 # Argument defaults
@@ -60,9 +62,10 @@ parser.add_argument("command",
                           + f"{command_dist_from_local} := will setup nextflow on hosts based on local nextflow source files -- "
                           + f"{command_dist_from_git} := will setup nextflow on hosts based on current version from forked git repo -- "
                           + f"{command_dry_run} := will only print generated command for the distribute script -- "
-                          + f"{command_docker} := will install Docker onf given list of hosts",
+                          + f"{command_docker} := will install Docker on specified hosts -- "
+                          + f"{command_scratch_dir} := will setup a scratch directory at /mnt/scratch on specified hosts",
                     type=str,
-                    choices=[command_dist_from_local, command_dist_from_git, command_dry_run, command_docker])
+                    choices=[command_dist_from_local, command_dist_from_git, command_dry_run, command_docker, command_scratch_dir])
 
 parser.add_argument("--nf-source", "-s",
                     metavar="DIR",
@@ -125,6 +128,9 @@ def get_setup_script(parsed_args):
 
     elif parsed_args.command == command_docker:
         return script_docker_setup
+    
+    elif parsed_args.command == command_scratch_dir:
+        return script_scratch_dir_setup
 
     else:
         return None
@@ -145,7 +151,7 @@ def validate_args(parsed_args):
     #                 nf-target (absolute path)
     #                 ignite discovery (dir exists or valid ip format)
     
-    if parsed_args.command == command_docker:
+    if parsed_args.command == command_docker or parsed_args.command == command_scratch_dir:
 
         if parsed_args.hosts is None or parsed_args.hosts == "":
             print("Validation failed: parameter '--hosts' cannot be empty")
@@ -157,7 +163,8 @@ def validate_args(parsed_args):
             and get_setup_script(parsed_args) is not None)
 
 def build_command(parsed_args):
-    if parsed_args.command == command_docker:
+
+    if parsed_args.command == command_docker or parsed_args.command == command_scratch_dir:    
         return [script_base_run, parsed_args.hosts, get_setup_script(parsed_args)]
     else:
         daemon_param = ignite_daemon_flag if parsed_args.daemon else "no-daemon"
@@ -190,17 +197,18 @@ if args.command == command_dry_run:
     
 print("Command for live execution was provided. The following command would be executed:\n")
 print ("  ", " ".join(cmd), "\n")
-confirmation = input("Continue? (y/Y)")
+confirmation = input("Continue? (y/Y) ")
 
 if confirmation != "y" and confirmation != "Y":
-    print("Distibute canceled")
+    print("Execution canceled")
     sys.exit(1)
 
-# use redirected stderr for simplicity
 
+# use redirected stderr for simplicity
 process = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 while True:
+    
     out = process.stdout.readline()
 
     if not out and process.poll() is not None:
