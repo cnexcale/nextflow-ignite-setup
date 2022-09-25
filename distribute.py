@@ -36,6 +36,7 @@ default_user = "ubuntu"
 default_daemon_flag = False
 default_ignite_discovery_dir = "/vol/spool/nf-ignite-cluster"
 default_purge_flag = False
+default_exec_prompt = False
 
 
 
@@ -116,6 +117,12 @@ parser.add_argument("--hosts",
                     help="Comma separated list of IP4 addresses ",
                     type=str)
 
+parser.add_argument("--yes", "-y",
+                    help=f"Confirm pre-execute prompt. Default: {default_exec_prompt}",
+                    action="store_true",
+                    default=default_exec_prompt)
+
+
 def get_setup_script(parsed_args):
     if parsed_args.setup_script != default_setup_script:
         return parsed_args.setup_script
@@ -194,14 +201,15 @@ if args.command == command_dry_run:
     sys.exit(0)
 
 
-    
 print("Command for live execution was provided. The following command would be executed:\n")
 print ("  ", " ".join(cmd), "\n")
-confirmation = input("Continue? (y/Y) ")
 
-if confirmation != "y" and confirmation != "Y":
-    print("Execution canceled")
-    sys.exit(1)
+# Confirm execution
+if args.yes == False:   
+    confirmation = input("Continue? (y/Y) ")
+    if confirmation != "y" and confirmation != "Y":
+        print("Execution canceled")
+        sys.exit(1)
 
 
 # use redirected stderr for simplicity
