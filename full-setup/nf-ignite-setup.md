@@ -54,7 +54,7 @@ ln -s /mnt/scratch /vol/scratch
 
 # Docker
 Für Meta-Omics-Toolkit muss Docker auf Nodes installiert sein
-- z.B. mit script [setup-docker.sh](scripts/setup-docker.sh)
+- z.B. mit script [setup-docker.sh](../helper/setup-docker.sh)
 
 
 
@@ -79,7 +79,7 @@ Falls ein NFS vorhanden:
 Falls kein NFS vorhanden:
 - Toolkit Binaries (`meta-omics-toolkit/bin`) auf Worker verteilen 
 - müssen auf jedem Node vorhanden sein
-- Helper Script siehe [copy-meta-omics-binaries.sh](scripts/copy-meta-omics-binaries.sh)
+- Helper Script siehe [copy-meta-omics-binaries.sh](../helper/copy-meta-omics-binaries.sh)
   - kopiert `<path_to_meta_omics_bin_folder>` in `/home/ubuntu/meta-tools` auf alle Worker
   - Beispiel: `copy-meta-omics-binaries.sh <path_to_meta_omics_bin_folder> <worker_node_ips__comma_separated>`
 

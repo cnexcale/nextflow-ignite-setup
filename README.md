@@ -8,6 +8,10 @@ Provides scripts to setup (compile + install) nextflow from source using a prede
 
 `distribute-nextflow.sh` will handle remote host resolution, possible cleanup and execute one of the setup scripts depending on the chosen mode.
 
+`run-remote.sh` is used as a general script to execute other scripts on a list of remote hosts.
+
+`setup-docker.sh` will install and setup Docker on a given host.
+
 
 # Full setup
 
@@ -19,7 +23,7 @@ For full setup tutorial please see [full setup guide](full-setup/nf-ignite-setup
 For a more convenient usage `distribute.py` provides a simple CLI interface with argument parsing and help/description texts. Use `./distribute.py --help` for an overview.
 Except for the base `command` and `nf-source` all arguments come with a default value.
 
-Example `from-git`:
+Example: Command `from-git`:
 ```
     ./distribute.py from-git \ 
         --user not-ubuntu \
@@ -29,9 +33,9 @@ Example `from-git`:
         --purge
 ```
 
-Example `from-local`:
+Example: command `from-local`:
 ```
-    ./distribute.py from-git \ 
+    ./distribute.py from-local \ 
         --user ubuntu \
         --nf-source /home/ubuntu/local-nf-source \
         --nf-target /home/ubuntu/nf-install-dir \
@@ -40,6 +44,10 @@ Example `from-local`:
         --purge
 ```
 
+Example: command `docker`
+```
+    ./distribute.py docker --hosts 192.168.0.1,192.168.0.2,192.168.0.3
+```
 
 # Note
 
