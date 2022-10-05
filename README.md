@@ -35,7 +35,7 @@ Example: Command `from-git`:
 
 Example: command `from-local`:
 ```
-    ./distribute.py from-git \ 
+    ./distribute.py from-local \ 
         --user ubuntu \
         --nf-source /home/ubuntu/local-nf-source \
         --nf-target /home/ubuntu/nf-install-dir \
