@@ -114,7 +114,7 @@ parser.add_argument("--purge", "-p",
 
 parser.add_argument("--hosts",
                     metavar="IP[,IP]*",
-                    help="Comma separated list of IP4 addresses ",
+                    help="Comma separated list of IP4 addresses, will be used as target hosts for certain commands",
                     type=str)
 
 parser.add_argument("--yes", "-y",
@@ -208,7 +208,7 @@ print ("  ", " ".join(cmd), "\n")
 if args.yes == False:   
     confirmation = input("Continue? (y/Y) ")
     if confirmation != "y" and confirmation != "Y":
-        print("Execution canceled")
+        print("Execution cancelled")
         sys.exit(1)
 
 
