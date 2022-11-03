@@ -17,6 +17,8 @@ command_dist_from_local = "from-local"
 command_dist_from_git = "from-git"
 command_docker = "docker"
 command_scratch_dir = "scratch-dir"
+command_restart="restart"
+
 
 
 # Script files
@@ -26,6 +28,7 @@ script_git_setup = "./helper/setup-nextflow.git.sh"
 script_local_setup = "./helper/setup-nextflow.sh"
 script_docker_setup = "./helper/setup-docker.sh"
 script_scratch_dir_setup = "./helper/setup-scratch-dir.sh"
+script_restart= "./helper/restart-ignite-daemons.sh"
 
 
 # Argument defaults
@@ -64,7 +67,8 @@ parser.add_argument("command",
                           + f"{command_dist_from_git} := will setup nextflow on hosts based on current version from forked git repo -- "
                           + f"{command_dry_run} := will only print generated command for the distribute script -- "
                           + f"{command_docker} := will install Docker on specified hosts -- "
-                          + f"{command_scratch_dir} := will setup a scratch directory at /mnt/scratch on specified hosts",
+                          + f"{command_scratch_dir} := will setup a scratch directory at /mnt/scratch on specified hosts --"
+                          + f"{command_restart} := will restart the Ignite daemons on specified hosts, --nf-target has to be set if non-default was used before ",
                     type=str,
                     choices=[command_dist_from_local, command_dist_from_git, command_dry_run, command_docker, command_scratch_dir])
 
@@ -138,6 +142,9 @@ def get_setup_script(parsed_args):
     
     elif parsed_args.command == command_scratch_dir:
         return script_scratch_dir_setup
+    
+    elif parsed_args.command == command_restart:
+        return script_restart
 
     else:
         return None
@@ -158,21 +165,23 @@ def validate_args(parsed_args):
     #                 nf-target (absolute path)
     #                 ignite discovery (dir exists or valid ip format)
     
-    if parsed_args.command == command_docker or parsed_args.command == command_scratch_dir:
+    if parsed_args.command == command_docker or parsed_args.command == command_scratch_dir or parsed_args.command == command_restart:
 
         if parsed_args.hosts is None or parsed_args.hosts == "":
             print("Validation failed: parameter '--hosts' cannot be empty")
             return False
         else:
             return True
-    
+
     return (get_dist_source(parsed_args) is not None
             and get_setup_script(parsed_args) is not None)
 
 def build_command(parsed_args):
 
     if parsed_args.command == command_docker or parsed_args.command == command_scratch_dir:    
-        return [script_base_run, parsed_args.hosts, get_setup_script(parsed_args)]
+        return [ script_base_run, parsed_args.hosts, get_setup_script(parsed_args) ]
+    elif parsed_args.command == command_restart:
+        return [ get_setup_script(parsed_args), parsed_args.hosts, parsed_args.nf_target ]
     else:
         daemon_param = ignite_daemon_flag if parsed_args.daemon else "no-daemon"
         purge_param = ignite_purge_flag if parsed_args.purge else "no-purge"
