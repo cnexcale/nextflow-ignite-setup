@@ -43,7 +43,7 @@ do
 
   # use `nohup` to prevent nextflow ignite deamons being killed on ssh session termination
   echo "[+] [$host] join ignite cluster via IP at $PARAM_HOSTS"
-  ssh $SSH_HOST 'export NXF_PLUGINS_DEFAULT=nf-ignite,nf-amazon; nohup '"$PARAM_NF_DIR/nextflow"' node -bg -cluster.join ip:'"$PARAM_HOSTS"''
+  ssh -t $SSH_HOST 'export NXF_PLUGINS_DEFAULT=nf-ignite,nf-amazon; nohup '"$PARAM_NF_DIR/nextflow"' node -bg -cluster.join ip:'"$PARAM_HOSTS"'; exit'
 
   if [[ $? -ne 0 ]]; then
     echo "[-] ERROR: $host did not complete successfully"
