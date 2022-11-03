@@ -70,7 +70,7 @@ parser.add_argument("command",
                           + f"{command_scratch_dir} := will setup a scratch directory at /mnt/scratch on specified hosts --"
                           + f"{command_restart} := will restart the Ignite daemons on specified hosts, --nf-target has to be set if non-default was used before ",
                     type=str,
-                    choices=[command_dist_from_local, command_dist_from_git, command_dry_run, command_docker, command_scratch_dir])
+                    choices=[command_dist_from_local, command_dist_from_git, command_dry_run, command_docker, command_scratch_dir, command_restart])
 
 parser.add_argument("--nf-source", "-s",
                     metavar="DIR",
@@ -181,7 +181,9 @@ def build_command(parsed_args):
     if parsed_args.command == command_docker or parsed_args.command == command_scratch_dir:    
         return [ script_base_run, parsed_args.hosts, get_setup_script(parsed_args) ]
     elif parsed_args.command == command_restart:
-        return [ get_setup_script(parsed_args), parsed_args.hosts, parsed_args.nf_target ]
+        # this handling of target dir is stupid bc it implies knowledge about another setup script... 
+        target_dir = f"{parsed_args.nf_target}/nextflow" if parsed_args.nf_target == default_nf_target_dir else parsed_args.nf_target
+        return [ get_setup_script(parsed_args), parsed_args.hosts, target_dir ]
     else:
         daemon_param = ignite_daemon_flag if parsed_args.daemon else "no-daemon"
         purge_param = ignite_purge_flag if parsed_args.purge else "no-purge"
