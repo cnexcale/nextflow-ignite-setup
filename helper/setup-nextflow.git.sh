@@ -172,7 +172,7 @@ if [ "$PARAM_IGNITE_MODE" == "$DAEMON_MODE" ]; then
     kill $PIDS
   fi
 
-  # run from exec dir so log file will be put placed there by ignite daemon
+  # run from exec dir so log file will be placed there by ignite daemon
   cd "$NF_EXEC_DIR"
 
   if [ "$IGNITE_DISCOVERY_MODE" == "ip" ]; then
