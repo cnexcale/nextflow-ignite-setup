@@ -38,12 +38,10 @@ do
       ssh "$SSH_HOST" 'kill -9 '"$PIDS"' '
   fi
 
-  # run from exec dir so log file will be placed there by ignite daemon
-  cd "$PARAM_NF_DIR"
 
   # use `nohup` to prevent nextflow ignite deamons being killed on ssh session termination
   echo "[+] [$host] join ignite cluster via IP at $PARAM_HOSTS"
-  ssh -t $SSH_HOST 'export NXF_PLUGINS_DEFAULT=nf-ignite,nf-amazon; nohup '"$PARAM_NF_DIR/nextflow"' node -bg -cluster.join ip:'"$PARAM_HOSTS"'; exit'
+  ssh -t $SSH_HOST 'cd '"$PARAM_NF_DIR"'; export NXF_PLUGINS_DEFAULT=nf-ignite,nf-amazon; nohup '"./nextflow"' node -bg -cluster.join ip:'"$PARAM_HOSTS"'; exit'
 
   if [[ $? -ne 0 ]]; then
     echo "[-] ERROR: $host did not complete successfully"
